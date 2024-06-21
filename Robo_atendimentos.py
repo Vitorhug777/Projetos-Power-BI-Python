@@ -15,12 +15,12 @@ caminho_final = r"\\172.22.1.45\c$\Projetos\SIMA\Atendimento Presencial\atendime
 
 driver = webdriver.Chrome()
 
-driver.get("https://egestaoservico.uberlandia.mg.gov.br/consulta/extracaoatendimento")
+driver.get("URL do site a ser acessado")
 
 username = driver.find_element(By.XPATH, "//*[@id='mat-input-0']")
 password = driver.find_element(By.XPATH, "//*[@id='mat-input-1']")
-username.send_keys("08610500616")
-password.send_keys("N@tivo2565")
+username.send_keys("usuario")
+password.send_keys("senha")
 login_button = driver.find_element(By.XPATH, "/html/body/app-root/app-login/div/div/mat-card/mat-card-content/form/button")
 login_button.click()
 
@@ -52,7 +52,7 @@ print('passou daqui 1')
 time.sleep(5)
 
 baixar_button = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.XPATH, "/html/body/app-root/div/div/extracao-atendimentos-servicos/mat-card/mat-card-content/form/div/div[5]/button"))
+    EC.presence_of_element_located((By.XPATH, "/html/body/app-root/div/div//mat-card/mat-card-content/form/div/div[5]/button"))
 )
 baixar_button.click()
 
@@ -85,15 +85,15 @@ df = df.rename(columns={
     'DT Retorno Fim Atendimento': 'FIM ATENDIMENTO RETORNO SIMA'
 })
 
-# Salvando o arquivo CSV no caminho local
+
 caminho_csv_local = os.path.join(caminho_destino_local, 'atendimentos.csv')
 df.to_csv(caminho_csv_local, index=False)
 
-# Copiando o arquivo CSV para o servidor
+
 shutil.copyfile(caminho_csv_local, caminho_final)
 print(f'Arquivo CSV substituído no servidor em {caminho_final}')
 
-# Deletando os arquivos da pasta de downloads
+
 arquivos_para_deletar = ['atendimentos.csv', 'relatorio.xls']
 for file in arquivos_para_deletar:
     caminho_arquivo = os.path.join(caminho_destino_local, file)
