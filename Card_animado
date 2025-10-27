@@ -1,0 +1,99 @@
+Medida_Contador_Formatado_Animado = 
+
+VAR _ValorBruto = 'coleta_seletiva'[Medida]
+VAR _Duracao = "100s" 
+VAR _TamanhoFonte = "2.5em" 
+VAR _CorFonte = "#252423" 
+VAR _Passo = 50 // <-- NOVO: O valor do incremento (de quanto em quanto)
+
+
+VAR _ValorInteiro = INT(_ValorBruto) 
+VAR _ValorFinalFormatado = FORMAT(_ValorBruto, "#,##0") 
+VAR _NumPassos = CEILING(_ValorInteiro / _Passo, 1) // <-- NOVO: Calcula quantos passos de 35 são necessários
+
+
+VAR _CSS = "
+<style>
+    html, body {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; 
+    }
+
+    @property --num {
+        syntax: '<integer>';
+        inherits: false;
+        initial-value: 0;
+    }
+
+    @keyframes contagem {
+        from { --num: 0; }
+        to { --num: " & _ValorInteiro & "; }
+    }
+    @keyframes aparecer {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes desaparecer {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .container {
+        width: 100%;
+        height: 100%; 
+        font-family: 'Segoe UI', sans-serif;
+        position: relative; 
+        margin: 0;
+    }
+
+    /* Estilo base para os dois textos */
+    .texto-base {
+        position: absolute; 
+        
+        /* Ajuste este valor (em px) para empurrar o número para baixo */
+        top: 40px; /* <-- AJUSTE AQUI A ALTURA (ex: 60px, 70px) */
+        
+        left: 0;
+        width: 100%; /* Ocupa a largura toda */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        
+        font-size: " & _TamanhoFonte & ";
+        font-weight: 600;
+        color: " & _CorFonte & ";
+    }
+
+    /* O contador que anima (ex: 0...235819) */
+    .texto-contador {
+        animation: 
+            /* AQUI ESTÁ A MUDANÇA: 'ease-out' foi trocado por 'steps(...)' */
+            contagem " & _Duracao & " steps(" & _NumPassos & ") forwards,
+            desaparecer 0.1s " & _Duracao & " forwards; 
+        counter-reset: num var(--num);
+    }
+    .texto-contador::before {
+        content: counter(num);
+    }
+
+    /* O texto final formatado (ex: 235.819) */
+    .texto-final {
+        opacity: 0; /* Começa invisível */
+        animation: aparecer 0.1s " & _Duracao & " forwards; /* Aparece no final */
+    }
+</style>
+"
+
+
+VAR _HTML = "
+<div class='container'>
+    <div class='texto-base texto-contador'></div>
+    <div class='texto-base texto-final'>
+        " & _ValorFinalFormatado & "
+    </div>
+</div>
+"
+
+RETURN
+    _CSS & _HTML
